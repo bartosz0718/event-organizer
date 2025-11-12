@@ -10,7 +10,7 @@ export default function ExploreLayout({ children }) {
   const isMainExplore = pathname === "/explore";
 
   return (
-    <div className="pt-28 pb-16 min-h-screen">
+    <div className="pb-16 min-h-screen">
       <div className="max-w-7xl mx-auto px-6">
         {/* Back Button for nested routes */}
         {!isMainExplore && (

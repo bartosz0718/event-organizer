@@ -142,7 +142,7 @@ export default function EventDashboardPage() {
   });
 
   return (
-    <div className="min-h-screen py-20 px-4 mt-10">
+    <div className="min-h-screen pb-20 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Navigation */}
         <div className="mb-6">
@@ -156,8 +156,20 @@ export default function EventDashboardPage() {
           </Button>
         </div>
 
+        {event.coverImage && (
+          <div className="relative h-[350px] rounded-2xl overflow-hidden mb-6">
+            <Image
+              src={event.coverImage}
+              alt={event.title}
+              fill
+              className="object-cover"
+              priority
+            />
+          </div>
+        )}
+
         {/* Event Header */}
-        <div className="flex items-start justify-between mb-10">
+        <div className="flex flex-col gap-5 sm:flex-row items-start justify-between mb-4">
           <div className="flex-1">
             <h1 className="text-3xl font-bold mb-3">{event.title}</h1>
             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
@@ -180,12 +192,12 @@ export default function EventDashboardPage() {
             </div>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 w-full sm:w-auto">
             <Button
               variant="outline"
               size="sm"
               onClick={() => router.push(`/events/${event.slug}`)}
-              className="gap-2"
+              className="gap-2 flex-1"
             >
               <Edit className="w-4 h-4" />
               View
@@ -195,7 +207,7 @@ export default function EventDashboardPage() {
               size="sm"
               onClick={handleDelete}
               disabled={isDeleting}
-              className="text-red-500 hover:text-red-600 gap-2"
+              className="text-red-500 hover:text-red-600 gap-2 flex-1"
             >
               <Trash2 className="w-4 h-4" />
               {isDeleting ? "Deleting..." : "Delete"}
@@ -203,8 +215,21 @@ export default function EventDashboardPage() {
           </div>
         </div>
 
+        {/* Quick Actions - Show QR Scanner if event is today */}
+        {stats.isEventToday && !stats.isEventPast && (
+          <Button
+            size="lg"
+            // variant="outline"
+            className="mb-8 w-full gap-2 h-10 bg-linear-to-r from-orange-500 via-pink-500 to-red-500 text-white hover:scale-[1.02]"
+            onClick={() => setShowQRScanner(true)}
+          >
+            <QrCode className="w-6 h-6" />
+            Scan QR Code to Check-In
+          </Button>
+        )}
+
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
           <Card className="py-0">
             <CardContent className="p-6 flex items-center gap-3">
               <div className="p-3 bg-purple-100 rounded-lg">
@@ -277,18 +302,6 @@ export default function EventDashboardPage() {
             </CardContent>
           </Card>
         </div>
-
-        {/* Quick Actions - Show QR Scanner if event is today */}
-        {stats.isEventToday && !stats.isEventPast && (
-          <Button
-            size="lg"
-            className="mb-4 w-full gap-2 bg-white hover:bg-gray-100 h-10"
-            onClick={() => setShowQRScanner(true)}
-          >
-            <QrCode className="w-6 h-6" />
-            Scan QR Code to Check-In
-          </Button>
-        )}
 
         {/* Attendee Management */}
         <h2 className="text-2xl font-bold mb-4">Attendee Management</h2>

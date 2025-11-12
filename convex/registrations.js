@@ -1,3 +1,4 @@
+import { internal } from "./_generated/api";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
@@ -14,19 +15,7 @@ export const registerForEvent = mutation({
     attendeeEmail: v.string(),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error("Not authenticated");
-    }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!user) {
-      throw new Error("User not found");
-    }
+    const user = await ctx.runQuery(internal.users.getCurrentUser);
 
     const event = await ctx.db.get(args.eventId);
     if (!event) {
@@ -76,19 +65,9 @@ export const registerForEvent = mutation({
 export const checkRegistration = query({
   args: { eventId: v.id("events") },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      return null;
-    }
+    const user = await ctx.runQuery(internal.users.getCurrentUser);
 
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!user) {
-      return null;
-    }
+    if (!user) return null;
 
     const registration = await ctx.db
       .query("registrations")
@@ -104,19 +83,7 @@ export const checkRegistration = query({
 // Get user's registrations (tickets)
 export const getMyRegistrations = query({
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      return [];
-    }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!user) {
-      return [];
-    }
+    const user = await ctx.runQuery(internal.users.getCurrentUser);
 
     const registrations = await ctx.db
       .query("registrations")
@@ -143,19 +110,7 @@ export const getMyRegistrations = query({
 export const getEventRegistrations = query({
   args: { eventId: v.id("events") },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error("Not authenticated");
-    }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!user) {
-      throw new Error("User not found");
-    }
+    const user = await ctx.runQuery(internal.users.getCurrentUser);
 
     const event = await ctx.db.get(args.eventId);
     if (!event) {
@@ -180,10 +135,7 @@ export const getEventRegistrations = query({
 export const checkInAttendee = mutation({
   args: { qrCode: v.string() },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error("Not authenticated");
-    }
+    const user = await ctx.runQuery(internal.users.getCurrentUser);
 
     const registration = await ctx.db
       .query("registrations")
@@ -198,11 +150,6 @@ export const checkInAttendee = mutation({
     if (!event) {
       throw new Error("Event not found");
     }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
-      .unique();
 
     // Check if user is the organizer
     if (event.organizerId !== user._id) {
@@ -240,19 +187,7 @@ export const checkInAttendee = mutation({
 export const cancelRegistration = mutation({
   args: { registrationId: v.id("registrations") },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error("Not authenticated");
-    }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!user) {
-      throw new Error("User not found");
-    }
+    const user = await ctx.runQuery(internal.users.getCurrentUser);
 
     const registration = await ctx.db.get(args.registrationId);
     if (!registration) {

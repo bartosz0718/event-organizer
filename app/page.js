@@ -1,11 +1,13 @@
 import React from "react";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function LandingPage() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="pt-20 md:pt-32 pb-16 px-6 relative overflow-hidden">
+      <section className="pb-16 relative overflow-hidden">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center relative z-10">
           {/* Left content */}
           <div className="text-center sm:text-left">
@@ -29,9 +31,11 @@ export default function LandingPage() {
               event memorable. Join our community today.
             </p>
 
-            <button className="bg-white text-gray-900 px-6 sm:px-8 py-3 sm:py-4 rounded-full text-base sm:text-lg font-medium hover:bg-gray-100 transition-all">
-              Get Started
-            </button>
+            <Link href="/explore">
+              <Button size="xl" className={"rounded-full"}>
+                Get Started
+              </Button>
+            </Link>
           </div>
 
           {/* Right - 3D Phone Mockup */}

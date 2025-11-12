@@ -1,3 +1,4 @@
+import { internal } from "./_generated/api";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
@@ -13,7 +14,9 @@ export const store = mutation({
     // Check if we've already stored this identity before
     const user = await ctx.db
       .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .withIndex("by_token", (q) =>
+        q.eq("tokenIdentifier", identity.tokenIdentifier)
+      )
       .unique();
 
     if (user !== null) {
@@ -39,8 +42,8 @@ export const store = mutation({
 
     // If it's a new identity, create a new user with defaults
     return await ctx.db.insert("users", {
-      clerkId: identity.subject,
       email: identity.email ?? "",
+      tokenIdentifier: identity.tokenIdentifier,
       name: identity.name ?? "Anonymous",
       imageUrl: identity.pictureUrl,
       hasCompletedOnboarding: false,
@@ -59,10 +62,17 @@ export const getCurrentUser = query({
       return null;
     }
 
+    // 🔹 Lookup by tokenIdentifier
     const user = await ctx.db
       .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .withIndex("by_token", (q) =>
+        q.eq("tokenIdentifier", identity.tokenIdentifier)
+      )
       .unique();
+
+    if (!user) {
+      throw new Error("User not found");
+    }
 
     return user;
   },
@@ -85,19 +95,7 @@ export const completeOnboarding = mutation({
     interests: v.array(v.string()), // Min 3 categories
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error("Not authenticated");
-    }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!user) {
-      throw new Error("User not found");
-    }
+    const user = await ctx.runQuery(internal.users.getCurrentUser);
 
     await ctx.db.patch(user._id, {
       location: args.location,
@@ -124,19 +122,7 @@ export const updateOrganizerProfile = mutation({
     ),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error("Not authenticated");
-    }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!user) {
-      throw new Error("User not found");
-    }
+    const user = await ctx.runQuery(internal.users.getCurrentUser);
 
     await ctx.db.patch(user._id, {
       organizerProfile: {

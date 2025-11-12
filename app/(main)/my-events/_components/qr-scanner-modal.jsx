@@ -1,4 +1,3 @@
-// app/my-events/[eventId]/_components/qr-scanner-modal.jsx
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -15,13 +14,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function QRScannerModal({ isOpen, onClose }) {
-  const [activeTab, setActiveTab] = useState("scan");
-  const [manualCode, setManualCode] = useState("");
   const [scannerReady, setScannerReady] = useState(false);
   const [error, setError] = useState(null);
 
@@ -50,7 +44,7 @@ export default function QRScannerModal({ isOpen, onClose }) {
     let mounted = true;
 
     const initScanner = async () => {
-      if (!isOpen || activeTab !== "scan") return;
+      if (!isOpen) return;
 
       try {
         console.log("Initializing QR scanner...");
@@ -122,17 +116,7 @@ export default function QRScannerModal({ isOpen, onClose }) {
       }
       setScannerReady(false);
     };
-  }, [isOpen, activeTab]);
-
-  const handleManualCheckIn = (e) => {
-    e.preventDefault();
-    if (!manualCode.trim()) {
-      toast.error("Please enter a QR code");
-      return;
-    }
-    handleCheckIn(manualCode.trim());
-    setManualCode("");
-  };
+  }, [isOpen]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -147,90 +131,30 @@ export default function QRScannerModal({ isOpen, onClose }) {
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="scan">
-              <Camera className="w-4 h-4 mr-2" />
-              Scan QR
-            </TabsTrigger>
-            <TabsTrigger value="manual">Manual Entry</TabsTrigger>
-          </TabsList>
-
-          {/* QR Scanner Tab */}
-          <TabsContent value="scan" className="space-y-4">
-            {error ? (
-              <div className="p-6 text-center space-y-4">
-                <div className="text-red-500 text-sm">{error}</div>
-                <Button
-                  variant="outline"
-                  onClick={() => setActiveTab("manual")}
-                  className="w-full"
-                >
-                  Use Manual Entry Instead
-                </Button>
+        {error ? (
+          <div className="text-red-500 text-sm">{error}</div>
+        ) : (
+          <>
+            <div
+              id="qr-reader"
+              className="w-full"
+              style={{ minHeight: "350px" }}
+            ></div>
+            {!scannerReady && (
+              <div className="flex items-center justify-center py-4">
+                <Loader2 className="w-6 h-6 animate-spin text-purple-500" />
+                <span className="ml-2 text-sm text-muted-foreground">
+                  Starting camera...
+                </span>
               </div>
-            ) : (
-              <>
-                <div
-                  id="qr-reader"
-                  className="w-full"
-                  style={{ minHeight: "350px" }}
-                ></div>
-                {!scannerReady && (
-                  <div className="flex items-center justify-center py-4">
-                    <Loader2 className="w-6 h-6 animate-spin text-purple-500" />
-                    <span className="ml-2 text-sm text-muted-foreground">
-                      Starting camera...
-                    </span>
-                  </div>
-                )}
-                <p className="text-sm text-muted-foreground text-center">
-                  {scannerReady
-                    ? "Position the QR code within the frame"
-                    : "Please allow camera access when prompted"}
-                </p>
-              </>
             )}
-          </TabsContent>
-
-          {/* Manual Entry Tab */}
-          <TabsContent value="manual">
-            <form onSubmit={handleManualCheckIn} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="qrCode">Ticket ID / QR Code</Label>
-                <Input
-                  id="qrCode"
-                  placeholder="EVT-1234567890-ABC"
-                  value={manualCode}
-                  onChange={(e) => setManualCode(e.target.value)}
-                  className="font-mono"
-                  autoFocus
-                />
-                <p className="text-xs text-muted-foreground">
-                  Enter the ticket ID shown on the attendee&apos;s ticket
-                </p>
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full gap-2"
-                disabled={isLoading || !manualCode.trim()}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Checking In...
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle className="w-4 h-4" />
-                    Check In Attendee
-                  </>
-                )}
-              </Button>
-            </form>
-          </TabsContent>
-        </Tabs>
+            <p className="text-sm text-muted-foreground text-center">
+              {scannerReady
+                ? "Position the QR code within the frame"
+                : "Please allow camera access when prompted"}
+            </p>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );

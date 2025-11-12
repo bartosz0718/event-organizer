@@ -50,7 +50,7 @@ export default function MyEventsPage() {
   }
 
   return (
-    <div className="min-h-screen py-20 px-4 mt-10">
+    <div className="min-h-screen pb-20 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>

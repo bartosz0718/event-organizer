@@ -89,6 +89,8 @@ export default function CreateEventPage() {
     },
   });
 
+  console.log(errors);
+
   const themeColor = watch("themeColor");
   const ticketType = watch("ticketType");
   const selectedState = watch("state");
@@ -114,6 +116,8 @@ export default function CreateEventPage() {
 
   const onSubmit = async (data) => {
     try {
+      console.log(data);
+
       const start = combineDateTime(data.startDate, data.startTime);
       const end = combineDateTime(data.endDate, data.endTime);
 
@@ -126,7 +130,9 @@ export default function CreateEventPage() {
         return;
       }
 
-      if (data.ticketType === "free" && currentUser?.freeEventsCreated >= 1) {
+      const premium = true; // Placeholder for premium check
+
+      if (currentUser?.freeEventsCreated >= 1 && !premium) {
         toast.error("You've reached your free event limit. Please upgrade!");
         return;
       }
@@ -180,7 +186,7 @@ export default function CreateEventPage() {
 
   return (
     <div
-      className="min-h-screen transition-colors duration-300 px-6 py-10 mt-24 rounded-xl"
+      className="min-h-screen transition-colors duration-300 px-6 py-10 rounded-xl"
       style={{ backgroundColor: themeColor }}
     >
       {/* Header */}

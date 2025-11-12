@@ -1,3 +1,4 @@
+import { internal } from "./_generated/api";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
@@ -25,52 +26,44 @@ export const createEvent = mutation({
     themeColor: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error("Not authenticated");
-    }
+    try {
+      const user = await ctx.runQuery(internal.users.getCurrentUser);
 
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
-      .unique();
+      const premium = true; // Placeholder for premium check
 
-    if (!user) {
-      throw new Error("User not found");
-    }
+      // Check if user can create event (free limit)
+      if (user.freeEventsCreated >= 1 && !premium) {
+        throw new Error(
+          "Free event limit reached. Please upgrade to create more events."
+        );
+      }
 
-    // Check if user can create event (free limit)
-    if (args.ticketType === "free" && user.freeEventsCreated >= 1) {
-      throw new Error(
-        "Free event limit reached. Please upgrade to create more events."
-      );
-    }
+      // Generate slug from title
+      const slug = args.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
 
-    // Generate slug from title
-    const slug = args.title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
+      // Create event
+      const eventId = await ctx.db.insert("events", {
+        ...args,
+        slug: `${slug}-${Date.now()}`,
+        organizerId: user._id,
+        organizerName: user.name,
+        registrationCount: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      });
 
-    // Create event
-    const eventId = await ctx.db.insert("events", {
-      ...args,
-      slug: `${slug}-${Date.now()}`,
-      organizerId: user._id,
-      organizerName: user.name,
-      registrationCount: 0,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    });
-
-    // Update user's free event count if it's a free event
-    if (args.ticketType === "free") {
+      // Update user's free event count if it's a free event
       await ctx.db.patch(user._id, {
         freeEventsCreated: user.freeEventsCreated + 1,
       });
-    }
 
-    return eventId;
+      return eventId;
+    } catch (error) {
+      throw new Error(`Failed to create event: ${error.message}`);
+    }
   },
 });
 
@@ -119,19 +112,7 @@ export const getEventBySlug = query({
 // Get events by organizer
 export const getMyEvents = query({
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      return [];
-    }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!user) {
-      return [];
-    }
+    const user = await ctx.runQuery(internal.users.getCurrentUser);
 
     const events = await ctx.db
       .query("events")
@@ -147,19 +128,7 @@ export const getMyEvents = query({
 export const deleteEvent = mutation({
   args: { eventId: v.id("events") },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error("Not authenticated");
-    }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!user) {
-      throw new Error("User not found");
-    }
+    const user = await ctx.runQuery(internal.users.getCurrentUser);
 
     const event = await ctx.db.get(args.eventId);
     if (!event) {

@@ -5,8 +5,8 @@ export default defineSchema({
   // Users table
   users: defineTable({
     // Clerk auth
-    clerkId: v.string(),
     email: v.string(),
+    tokenIdentifier: v.string(), // Clerk user ID for auth
     name: v.string(),
     imageUrl: v.optional(v.string()),
 
@@ -51,7 +51,7 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
   })
-    .index("by_clerk_id", ["clerkId"])
+    .index("by_token", ["tokenIdentifier"]) // Primary auth lookup
     .index("by_email", ["email"])
     .searchIndex("search_name", { searchField: "name" }),
 
@@ -98,9 +98,6 @@ export default defineSchema({
     // Customization
     coverImage: v.optional(v.string()),
     themeColor: v.optional(v.string()),
-
-    // Analytics
-    viewCount: v.number(),
 
     // Timestamps
     createdAt: v.number(),

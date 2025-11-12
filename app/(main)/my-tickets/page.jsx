@@ -27,23 +27,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { getCategoryIcon, getCategoryLabel } from "@/lib/data";
 import Link from "next/link";
 
 export default function MyTicketsPage() {
   const router = useRouter();
   const [selectedTicket, setSelectedTicket] = useState(null);
-  const [cancelTicketId, setCancelTicketId] = useState(null);
 
   const { data: registrations, isLoading } = useConvexQuery(
     api.registrations.getMyRegistrations
@@ -51,13 +40,13 @@ export default function MyTicketsPage() {
   const { mutate: cancelRegistration, isLoading: isCancelling } =
     useConvexMutation(api.registrations.cancelRegistration);
 
-  const handleCancelRegistration = async () => {
-    if (!cancelTicketId) return;
+  const handleCancelRegistration = async (registrationId) => {
+    if (!window.confirm("Are you sure you want to cancel this registration?"))
+      return;
 
     try {
-      await cancelRegistration({ registrationId: cancelTicketId });
-      toast.success("Registration cancelled");
-      setCancelTicketId(null);
+      await cancelRegistration({ registrationId });
+      toast.success("Registration cancelled successfully.");
     } catch (error) {
       toast.error(error.message || "Failed to cancel registration");
     }
@@ -71,7 +60,6 @@ export default function MyTicketsPage() {
     );
   }
 
-  // Separate upcoming and past tickets
   const now = Date.now();
 
   const upcomingTickets = registrations?.filter(
@@ -84,7 +72,7 @@ export default function MyTicketsPage() {
   );
 
   return (
-    <div className="min-h-screen py-20 px-4 mt-10">
+    <div className="min-h-screen pb-20 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">My Tickets</h1>
@@ -135,7 +123,10 @@ export default function MyTicketsPage() {
                         <span>
                           {registration.event.locationType === "online"
                             ? "Online Event"
-                            : `${registration.event.city}, ${registration.event.state || registration.event.country}`}
+                            : `${registration.event.city}, ${
+                                registration.event.state ||
+                                registration.event.country
+                              }`}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
@@ -159,10 +150,22 @@ export default function MyTicketsPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setCancelTicketId(registration._id)}
+                        onClick={() =>
+                          handleCancelRegistration(registration._id)
+                        }
                         className="text-red-500 hover:text-red-600"
+                        disabled={isCancelling}
                       >
-                        <X className="w-4 h-4" />
+                        {isCancelling ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Cancelling...
+                          </>
+                        ) : (
+                          <>
+                            <X className="w-4 h-4" />
+                          </>
+                        )}
                       </Button>
                     </div>
                   </CardContent>
@@ -216,7 +219,10 @@ export default function MyTicketsPage() {
                         <span>
                           {registration.event.locationType === "online"
                             ? "Online Event"
-                            : `${registration.event.city}, ${registration.event.state || registration.event.country}`}
+                            : `${registration.event.city}, ${
+                                registration.event.state ||
+                                registration.event.country
+                              }`}
                         </span>
                       </div>
                     </div>
@@ -268,7 +274,6 @@ export default function MyTicketsPage() {
                 </p>
               </div>
 
-              {/* QR Code */}
               <div className="flex justify-center p-6 bg-white rounded-lg">
                 <QRCode value={selectedTicket.qrCode} size={200} level="H" />
               </div>
@@ -290,7 +295,10 @@ export default function MyTicketsPage() {
                   <span>
                     {selectedTicket.event.locationType === "online"
                       ? "Online Event"
-                      : `${selectedTicket.event.city}, ${selectedTicket.event.state || selectedTicket.event.country}`}
+                      : `${selectedTicket.event.city}, ${
+                          selectedTicket.event.state ||
+                          selectedTicket.event.country
+                        }`}
                   </span>
                 </div>
               </div>
@@ -302,41 +310,6 @@ export default function MyTicketsPage() {
           </DialogContent>
         </Dialog>
       )}
-
-      {/* Cancel Confirmation Dialog */}
-      <AlertDialog
-        open={!!cancelTicketId}
-        onOpenChange={() => setCancelTicketId(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Cancel Registration?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to cancel this registration? This action
-              cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isCancelling}>
-              Keep Registration
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleCancelRegistration}
-              disabled={isCancelling}
-              className="bg-red-500 hover:bg-red-600"
-            >
-              {isCancelling ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Cancelling...
-                </>
-              ) : (
-                "Cancel Registration"
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }
