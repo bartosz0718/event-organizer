@@ -86,7 +86,7 @@ export default function OnboardingModal({ isOpen, onClose, onComplete }) {
         },
         interests: selectedInterests,
       });
-      toast.success("Welcome to EventHub! 🎉");
+      toast.success("Welcome to Spott! 🎉");
       onComplete();
     } catch (error) {
       toast.error("Failed to complete onboarding");

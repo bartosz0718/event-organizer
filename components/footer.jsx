@@ -7,12 +7,12 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           <span className="font-light tracking-wide text-sm">
-            eventhub<span className="text-purple-400">*</span>
+            spott<span className="text-purple-400">*</span>
           </span>
         </div>
 
         <div className="flex items-center gap-6 text-sm text-gray-400">
-          <a href="#" className="hover:text-white transition-colors">
+          <a href="/pricing" className="hover:text-white transition-colors">
             Pricing
           </a>
           <a href="#" className="hover:text-white transition-colors">
