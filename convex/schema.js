@@ -50,10 +50,7 @@ export default defineSchema({
     // Timestamps
     createdAt: v.number(),
     updatedAt: v.number(),
-  })
-    .index("by_token", ["tokenIdentifier"]) // Primary auth lookup
-    .index("by_email", ["email"])
-    .searchIndex("search_name", { searchField: "name" }),
+  }).index("by_token", ["tokenIdentifier"]), // Primary auth lookup
 
   // Events table
   events: defineTable({
@@ -105,8 +102,6 @@ export default defineSchema({
   })
     .index("by_organizer", ["organizerId"])
     .index("by_category", ["category"])
-    .index("by_city", ["city"])
-    .index("by_state", ["state"]) // Added state index
     .index("by_start_date", ["startDate"])
     .index("by_slug", ["slug"])
     .searchIndex("search_title", { searchField: "title" }),
