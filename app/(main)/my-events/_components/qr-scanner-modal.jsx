@@ -13,13 +13,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 
 export default function QRScannerModal({ isOpen, onClose }) {
   const [scannerReady, setScannerReady] = useState(false);
   const [error, setError] = useState(null);
 
-  const { mutate: checkInAttendee, isLoading } = useConvexMutation(
+  const { mutate: checkInAttendee } = useConvexMutation(
     api.registrations.checkInAttendee
   );
 

@@ -40,15 +40,16 @@ export default function LandingPage() {
 
           {/* Right - 3D Phone Mockup */}
           <div className="relative block">
-            {/* <Image
-              src="/3d-react.png"
+            <Image
+              src="/spotthero.png"
+              // src="/hero.gif"
               alt="react meetup"
               width={700}
               height={700}
               className="w-full h-auto"
               priority
-            /> */}
-            <video
+            />
+            {/* <video
               width="100%"
               height="100%"
               loop
@@ -65,7 +66,7 @@ export default function LandingPage() {
                 src="https://cdn.lu.ma/landing/phone-dark.webm"
                 type="video/webm"
               />
-            </video>
+            </video> */}
           </div>
         </div>
       </section>

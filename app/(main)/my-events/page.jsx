@@ -1,7 +1,5 @@
-// app/my-events/page.jsx
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -17,9 +15,7 @@ export default function MyEventsPage() {
   const router = useRouter();
 
   const { data: events, isLoading } = useConvexQuery(api.events.getMyEvents);
-  const { mutate: deleteEvent, isLoading: isDeleting } = useConvexMutation(
-    api.events.deleteEvent
-  );
+  const { mutate: deleteEvent } = useConvexMutation(api.events.deleteEvent);
 
   const handleDelete = async (eventId) => {
     const confirmed = window.confirm(
