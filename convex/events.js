@@ -77,35 +77,6 @@ export const createEvent = mutation({
   },
 });
 
-// Get upcoming events
-export const getUpcomingEvents = query({
-  args: {
-    limit: v.optional(v.number()),
-    category: v.optional(v.string()),
-    city: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
-    const now = Date.now();
-    let query = ctx.db
-      .query("events")
-      .withIndex("by_start_date")
-      .filter((q) => q.gte(q.field("startDate"), now));
-
-    const events = await query.collect();
-
-    // Filter by category and city in memory
-    let filtered = events;
-    if (args.category) {
-      filtered = filtered.filter((e) => e.category === args.category);
-    }
-    if (args.city) {
-      filtered = filtered.filter((e) => e.city === args.city);
-    }
-
-    return filtered.slice(0, args.limit ?? 12);
-  },
-});
-
 // Get event by slug
 export const getEventBySlug = query({
   args: { slug: v.string() },
