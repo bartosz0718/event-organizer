@@ -682,6 +682,9 @@ export const run = internalMutation({
     for (const eventData of SAMPLE_EVENTS) {
       const startDate = getRandomFutureDate();
       const endDate = getEventEndTime(startDate);
+      const registrationCount = Math.floor(
+        Math.random() * eventData.capacity * 0.7
+      );
 
       const event = {
         title: eventData.title,
@@ -705,6 +708,7 @@ export const run = internalMutation({
         timezone: "Asia/Kolkata",
         locationType: "physical",
         country: "India",
+        registrationCount,
         createdAt: Date.now(),
         updatedAt: Date.now(),
       };
