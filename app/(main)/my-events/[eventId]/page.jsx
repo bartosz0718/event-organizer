@@ -1,4 +1,3 @@
-// app/my-events/[eventId]/page.jsx
 "use client";
 
 import { useState } from "react";
@@ -13,14 +12,13 @@ import {
   Users,
   TrendingUp,
   Clock,
-  Edit,
   Trash2,
   QrCode,
   Loader2,
   CheckCircle,
-  Circle,
   Download,
   Search,
+  Eye,
 } from "lucide-react";
 import { useConvexQuery, useConvexMutation } from "@/hooks/use-convex-query";
 import { api } from "@/convex/_generated/api";
@@ -34,6 +32,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { getCategoryIcon, getCategoryLabel } from "@/lib/data";
 import QRScannerModal from "../_components/qr-scanner-modal";
+import { AttendeeCard } from "../_components/attendee-card";
 
 export default function EventDashboardPage() {
   const params = useParams();
@@ -199,7 +198,7 @@ export default function EventDashboardPage() {
               onClick={() => router.push(`/events/${event.slug}`)}
               className="gap-2 flex-1"
             >
-              <Edit className="w-4 h-4" />
+              <Eye className="w-4 h-4" />
               View
             </Button>
             <Button
@@ -367,78 +366,5 @@ export default function EventDashboardPage() {
         />
       )}
     </div>
-  );
-}
-
-// Attendee Card Component
-function AttendeeCard({ registration }) {
-  const { mutate: checkInAttendee, isLoading } = useConvexMutation(
-    api.registrations.checkInAttendee
-  );
-
-  const handleManualCheckIn = async () => {
-    try {
-      const result = await checkInAttendee({ qrCode: registration.qrCode });
-      if (result.success) {
-        toast.success("Attendee checked in successfully");
-      } else {
-        toast.error(result.message);
-      }
-    } catch (error) {
-      toast.error(error.message || "Failed to check in attendee");
-    }
-  };
-
-  return (
-    <Card className="py-0">
-      <CardContent className="p-4 flex items-start gap-4">
-        <div
-          className={`mt-1 p-2 rounded-full ${
-            registration.checkedIn ? "bg-green-100" : "bg-gray-100"
-          }`}
-        >
-          {registration.checkedIn ? (
-            <CheckCircle className="w-5 h-5 text-green-600" />
-          ) : (
-            <Circle className="w-5 h-5 text-gray-400" />
-          )}
-        </div>
-
-        <div className="flex-1 min-w-0">
-          <h3 className="font-semibold mb-1">{registration.attendeeName}</h3>
-          <p className="text-sm text-muted-foreground mb-2">
-            {registration.attendeeEmail}
-          </p>
-          <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-            <span>
-              {registration.checkedIn ? "⏰ Checked in" : "📅 Registered"}{" "}
-              {registration.checkedIn && registration.checkedInAt
-                ? format(registration.checkedInAt, "PPp")
-                : format(registration.registeredAt, "PPp")}
-            </span>
-            <span className="font-mono">QR: {registration.qrCode}</span>
-          </div>
-        </div>
-
-        {!registration.checkedIn && (
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handleManualCheckIn}
-            disabled={isLoading}
-            className="gap-2"
-          >
-            {isLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <>
-                <CheckCircle className="w-4 h-4" />
-                Check In
-              </>
-            )}
-          </Button>
-        )}
-      </CardContent>
-    </Card>
   );
 }

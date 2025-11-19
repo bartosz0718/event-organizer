@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { QrCode, Loader2, CheckCircle, Camera } from "lucide-react";
+import { useState, useEffect } from "react";
+import { QrCode, Loader2 } from "lucide-react";
 import { useConvexMutation } from "@/hooks/use-convex-query";
 import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";

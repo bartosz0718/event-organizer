@@ -17,7 +17,7 @@ import {
   Loader2,
   CheckCircle,
 } from "lucide-react";
-import { useConvexQuery, useConvexMutation } from "@/hooks/use-convex-query";
+import { useConvexQuery } from "@/hooks/use-convex-query";
 import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
 import { useUser } from "@clerk/nextjs";
